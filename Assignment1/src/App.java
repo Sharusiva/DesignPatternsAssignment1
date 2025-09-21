@@ -19,6 +19,8 @@ public class App {
         System.out.println("BrandA Lock status (locked): " + lockA.lockStatus);
         lockA.autoLock();
         System.out.println("BrandA Lock status (auto-locked): " + lockA.lockStatus);
+        lockA.setBatteryConsumption("dummyFile");
+        System.out.println("BrandA Lock battery: " + lockA.getBatteryConsumption() + "%");
 
         System.out.println("\n=== Testing BrandB Devices ===");
         // Create BrandB devices using factory
@@ -28,7 +30,7 @@ public class App {
 
         bulbB.turnOn();
         bulbB.setBrightness();
-        System.out.println("BrandB Bulb power usage: " + bulbB.setPowerUsage("dummyFile") + "W");
+        System.out.println("BrandA Bulb power usage: " + bulbA.setPowerUsage("dummyFile") + "W");
         bulbB.turnOff();
 
         lockB.unlock();
@@ -37,6 +39,8 @@ public class App {
         System.out.println("BrandB Lock status (locked): " + lockB.lockStatus);
         lockB.autoLock();
         System.out.println("BrandB Lock status (auto-locked): " + lockB.lockStatus);
+        lockB.setBatteryConsumption("dummyFile");
+        System.out.println("BrandB Lock battery: " + lockB.getBatteryConsumption() + "%");
 
     }
 }
@@ -46,13 +50,33 @@ abstract class SmartBulb {
     String colour;
     int wattage;
 
+    abstract float setPowerUsage(String file);
+
+    public float getPowerUsage() {
+        return powerUsage;
+    }
+
+    public String getColour() {
+        return colour;
+    }
+
+    public void setColour(String colour) {
+        this.colour = colour;
+    }
+
+    public int getWattage() {
+        return wattage;
+    }
+
+    public void setWattage(int wattage) {
+        this.wattage = wattage;
+    }
+
     abstract void setBrightness();
 
     abstract void turnOn();
 
     abstract void turnOff();
-
-    abstract float setPowerUsage(String file);
 
 }
 
@@ -70,6 +94,20 @@ abstract class SmartLock {
     }
 
     abstract void autoLock();
+
+    abstract float setBatteryConsumption(String file);
+
+    public float getBatteryConsumption() {
+        return batteryConsumption;
+    }
+
+    public String getConnectivity() {
+        return connectivity;
+    }
+
+    public void setConnectivity(String connectivity) {
+        this.connectivity = connectivity;
+    }
 }
 
 interface SmartDeviceFactory {
@@ -80,6 +118,11 @@ interface SmartDeviceFactory {
 
 // BrandA implementations
 class BrandABulb extends SmartBulb {
+
+    public BrandABulb() {
+        this.powerUsage = 25;
+        this.colour = "Warm White";
+    }
 
     @Override
     public void turnOn() {
@@ -98,12 +141,18 @@ class BrandABulb extends SmartBulb {
 
     @Override
     public float setPowerUsage(String file) {
-        return 56.0f;
+        this.powerUsage = 56.0f;
+        return this.powerUsage;
     }
 
 }
 
 class BrandALock extends SmartLock {
+
+    public BrandALock() {
+        this.connectivity = "Bluetooth";
+    }
+
     @Override
     public void unlock() {
         super.unlock();
@@ -120,10 +169,22 @@ class BrandALock extends SmartLock {
     public void autoLock() {
         System.out.println("BrandA Lock auto-locked.");
     }
+
+    @Override
+    public float setBatteryConsumption(String file) {
+        // Pretend to read from file
+        this.batteryConsumption = 80.0f; // %
+        return this.batteryConsumption;
+    }
 }
 
 // BrandB implementations
 class BrandBBulb extends SmartBulb {
+
+    public BrandBBulb() {
+        this.powerUsage = 10.0f; // watts
+        this.colour = "Cool White";
+    }
 
     @Override
     public void turnOn() {
@@ -142,7 +203,8 @@ class BrandBBulb extends SmartBulb {
 
     @Override
     public float setPowerUsage(String file) {
-        return 12.0f;
+        this.powerUsage = 12.0f;
+        return this.powerUsage;
     }
 }
 
@@ -163,14 +225,22 @@ class BrandBLock extends SmartLock {
     public void autoLock() {
         System.out.println("BrandB Lock auto-locked.");
     }
+
+    @Override
+    public float setBatteryConsumption(String file) {
+        this.batteryConsumption = 60.0f; // %
+        return this.batteryConsumption;
+    }
 }
 
 // BrandA Factory
 class BrandAFactory implements SmartDeviceFactory {
+    @Override
     public SmartBulb createSmartBulb() {
         return new BrandABulb();
     }
 
+    @Override
     public SmartLock createSmartLock() {
         return new BrandALock();
     }
@@ -178,10 +248,12 @@ class BrandAFactory implements SmartDeviceFactory {
 
 // BrandB Factory
 class BrandBFactory implements SmartDeviceFactory {
+    @Override
     public SmartBulb createSmartBulb() {
         return new BrandBBulb();
     }
 
+    @Override
     public SmartLock createSmartLock() {
         return new BrandBLock();
     }
