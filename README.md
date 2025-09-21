@@ -1,5 +1,8 @@
 # DesignPatternsAssignment1
 
+Sharujan Sivanandam - 100820960
+
+
 Implementing Factory method pattern to produce architecture for a smart bulb and smart lock
 
 Repository Structure  
